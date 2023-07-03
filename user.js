@@ -11,7 +11,7 @@ const exerciseSchema = mongoose.Schema({
     },
     date: {
         type: Date,
-        default: new Date() //a Date object of current time
+        default: Date() //a Date object of current time
     }
 })
 
@@ -20,7 +20,10 @@ const userSchema = mongoose.Schema({
         type: String,
         require: true
     },
-    exercise: [exerciseSchema]
+    exercises: [exerciseSchema]
 })
 
-module.exports = mongoose.model('User', userSchema);
+const exerciseModel = mongoose.model('Exercise', exerciseSchema);
+const userModel =  mongoose.model('User', userSchema);
+
+module.exports = { exerciseModel, userModel };

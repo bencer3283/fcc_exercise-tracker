@@ -6,7 +6,8 @@ require('dotenv').config();
 
 let mongoose = require('mongoose');
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
-let User = require('./user');
+let User = require('./user').userModel;
+let Exercise = require('./user').exerciseModel;
 
 app.use(cors());
 app.use(bodyParser.urlencoded({extended: false}));
@@ -34,7 +35,25 @@ app.post('/api/users', (req, res) => {
   })
 })
 
-
+app.post('/api/users/:_id/exercises', (req, res) => {
+  let findId = req.params._id;
+  let excerciseToAdd = new Exercise({
+    description: req.body.description,
+    duration: req.body.duration,
+    date: new Date(req.body.date)
+  })
+  console.log('add exercise to user ', findId);
+  User.findById(findId).then((doc) => {
+    doc.exercises.push(excerciseToAdd);
+    doc.save().then((doc) => {
+      console.log('exercise added', excerciseToAdd);
+    }).catch((err) => {
+      console.log('save fail', err);
+    })
+  }).catch((err) => {
+    console.log('cant find id', err);
+  })
+})
 
 
 const listener = app.listen(process.env.PORT || 3000, () => {
