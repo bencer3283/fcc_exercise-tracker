@@ -43,10 +43,17 @@ app.post('/api/users/:_id/exercises', (req, res) => {
     date: new Date(req.body.date)
   })
   console.log('add exercise to user ', findId);
-  User.findById(findId).then((doc) => {
-    doc.exercises.push(excerciseToAdd);
-    doc.save().then((doc) => {
+  User.findById(findId).then((userDoc) => {
+    userDoc.exercises.push(excerciseToAdd);
+    userDoc.save().then((doc) => {
       console.log('exercise added', excerciseToAdd);
+      res.json({
+        description: req.body.description,
+        duration: req.body.duration,
+        date: excerciseToAdd.date.toDateString(),
+        username: doc.username,
+        _id: doc._id.toString()
+      })
     }).catch((err) => {
       console.log('save fail', err);
     })
