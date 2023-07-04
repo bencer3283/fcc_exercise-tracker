@@ -10,8 +10,8 @@ const exerciseSchema = mongoose.Schema({
         reauired: true
     },
     date: {
-        type: Date,
-        default: Date() //a Date object of current time
+        type: Number,
+        default: Date.now() //a timestamp of current time
     },
     parentId: {
         type: String,

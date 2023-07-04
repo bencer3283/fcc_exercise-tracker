@@ -46,13 +46,21 @@ app.get('/api/users', (req, res) => {
 
 app.post('/api/users/:_id/exercises', (req, res) => {
   let findId = req.params._id;
+  let stamp = new Date(req.body.date).valueOf();
   let excerciseToAdd = new Exercise({
     description: req.body.description,
     duration: req.body.duration,
-    date: new Date(req.body.date),
+    date: stamp,
     parentId: findId
-  })
-  excerciseToAdd.save().then((doc) => {}, (err) => {});
+  });
+  if (Number.isNaN(stamp)) {
+    excerciseToAdd = new Exercise({
+      description: req.body.description,
+      duration: req.body.duration,
+      parentId: findId
+    });
+  }
+  excerciseToAdd.save().then((doc) => {}, (err) => {console.log(err);});
   console.log('add exercise to user ', findId);
   User.findById(findId).then((userDoc) => {
     userDoc.exercises.push(excerciseToAdd);
@@ -61,7 +69,7 @@ app.post('/api/users/:_id/exercises', (req, res) => {
       res.json({
         description: req.body.description,
         duration: +req.body.duration,
-        date: excerciseToAdd.date.toDateString(),
+        date: new Date(excerciseToAdd.date).toDateString(),
         username: doc.username,
         _id: doc._id.toString()
       })
@@ -75,12 +83,43 @@ app.post('/api/users/:_id/exercises', (req, res) => {
 
 app.get('/api/users/:_id/logs', (req, res) => {
   let logId = req.params._id;
-  let queryParam = req.query;
+  let from = new Date(req.query.from).valueOf();
+  let to = new Date(req.query.to).valueOf();
+  let limit = +req.query.limit;
   console.log('retrieve logs of user', logId);
+  if (!Number.isNaN(from)) {
+    console.log('query with from, to, limit');
+    if (Number.isNaN(to)) to = Date.now();
+    if (limit < 1) limit = 100;
+    Exercise.find({
+      date: {
+        $gte: from,
+        $lte: to,
+      },
+      parentId: logId
+    }, 'description duration date -_id')
+    .limit(limit).exec()
+    .then((doc) => {
+      console.log(doc);
+      let exerciseArray = JSON.parse(JSON.stringify(doc));
+      for (let elem of exerciseArray) {
+        elem.date = new Date(elem.date).toDateString();
+      }
+      User.findById(logId).then((usr) => {
+        res.json({
+          username: usr.username,
+          _id: usr._id.toString(),
+          count: usr.countExercises(),
+          log: exerciseArray
+        })
+      });
+    })
+    .catch((err) => {console.log('query fail', err)});
+  }
+  else {
   User.findById(logId).then((logUser) => {
     let exerciseArray = JSON.parse(JSON.stringify(logUser.exercises));
     for (let elem of exerciseArray) {
-      console.log(elem);
       elem.date = new Date(elem.date).toDateString();
       delete elem._id;
       delete elem.parentId;
@@ -94,7 +133,7 @@ app.get('/api/users/:_id/logs', (req, res) => {
     })
   }).catch((err) => {
     console.error('cant find ID', err);
-  })
+  })}
 })
 
 
