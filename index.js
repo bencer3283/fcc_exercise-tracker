@@ -88,12 +88,17 @@ app.get('/api/users/:_id/logs', (req, res) => {
   let to = new Date(req.query.to).valueOf();
   let limit = +req.query.limit;
   let noTo = false;
+  let noFrom = false;
   console.log('retrieve logs of user', logId);
-  if (!Number.isNaN(from)) {
+  if (!Number.isNaN(from)||!Number.isNaN(limit)) {
     console.log('query from ', req.query.from, 'to', req.query.to, 'with limit', req.query.limit);
     if (Number.isNaN(to)) {
       to = Date.now();
       noTo = true;
+    }
+    if (Number.isNaN(from)) {
+      from = 0;
+      noFrom = true;
     } 
     if (limit < 1) limit = 100;
     Exercise.find({
@@ -111,7 +116,15 @@ app.get('/api/users/:_id/logs', (req, res) => {
         elem.date = new Date(elem.date).toDateString();
       }
       User.findById(logId).then((usr) => {
-        if (noTo) {
+        if(noFrom && noTo) {
+          res.json({
+            username: usr.username,
+            _id: usr._id.toString(),
+            count: exerciseArray.length,
+            log: exerciseArray
+          })
+        }
+        else if (noTo) {
           res.json({
           username: usr.username,
           _id: usr._id.toString(),
