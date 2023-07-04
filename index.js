@@ -109,7 +109,9 @@ app.get('/api/users/:_id/logs', (req, res) => {
         res.json({
           username: usr.username,
           _id: usr._id.toString(),
-          count: usr.countExercises(),
+          count: exerciseArray.length,
+          from: new Date(req.query.from).toDateString(),
+          to: new Date(req.query.to).toDateString(),
           log: exerciseArray
         })
       });
