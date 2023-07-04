@@ -71,6 +71,27 @@ app.post('/api/users/:_id/exercises', (req, res) => {
   })
 })
 
+app.get('/api/users/:_id/logs', (req, res) => {
+  let logId = req.params._id;
+  console.log('retrieve logs of user', logId);
+  User.findById(logId).then((logUser) => {
+    let exerciseArray = JSON.parse(JSON.stringify(logUser.exercises));
+    for (let elem of exerciseArray) {
+      console.log(elem);
+      elem.date = new Date(elem.date).toDateString();
+      delete elem._id;
+    }
+    res.json({
+      username: logUser.username,
+      _id: logUser._id.toString(),
+      count: logUser.countExercises(),
+      log: exerciseArray
+    })
+  }).catch((err) => {
+    console.error('cant find ID', err);
+  })
+})
+
 
 const listener = app.listen(process.env.PORT || 3000, () => {
   console.log('Your app is listening on port ' + listener.address().port)

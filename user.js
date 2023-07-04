@@ -13,7 +13,7 @@ const exerciseSchema = mongoose.Schema({
         type: Date,
         default: Date() //a Date object of current time
     }
-})
+});
 
 const userSchema = mongoose.Schema({
     username: {
@@ -21,7 +21,14 @@ const userSchema = mongoose.Schema({
         require: true
     },
     exercises: [exerciseSchema]
+}, {
+    methods: {
+        countExercises() {
+            return this.exercises.length;
+        }
+    }
 })
+
 
 const exerciseModel = mongoose.model('Exercise', exerciseSchema);
 const userModel =  mongoose.model('User', userSchema);
