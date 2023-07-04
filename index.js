@@ -35,6 +35,15 @@ app.post('/api/users', (req, res) => {
   })
 })
 
+app.get('/api/users', (req, res) => {
+  console.log('get user list');
+  User.find({}, 'username').then((docs) => {
+    res.json(docs);
+  }).catch((err) => {
+    console.log('cant get user list', err);
+  })
+})
+
 app.post('/api/users/:_id/exercises', (req, res) => {
   let findId = req.params._id;
   let excerciseToAdd = new Exercise({
@@ -49,7 +58,7 @@ app.post('/api/users/:_id/exercises', (req, res) => {
       console.log('exercise added', excerciseToAdd);
       res.json({
         description: req.body.description,
-        duration: req.body.duration,
+        duration: +req.body.duration,
         date: excerciseToAdd.date.toDateString(),
         username: doc.username,
         _id: doc._id.toString()
