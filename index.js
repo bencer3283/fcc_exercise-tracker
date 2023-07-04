@@ -83,13 +83,18 @@ app.post('/api/users/:_id/exercises', (req, res) => {
 
 app.get('/api/users/:_id/logs', (req, res) => {
   let logId = req.params._id;
+  console.log(req.query);
   let from = new Date(req.query.from).valueOf();
   let to = new Date(req.query.to).valueOf();
   let limit = +req.query.limit;
+  let noTo = false;
   console.log('retrieve logs of user', logId);
   if (!Number.isNaN(from)) {
     console.log('query from ', req.query.from, 'to', req.query.to, 'with limit', req.query.limit);
-    if (Number.isNaN(to)) to = Date.now();
+    if (Number.isNaN(to)) {
+      to = Date.now();
+      noTo = true;
+    } 
     if (limit < 1) limit = 100;
     Exercise.find({
       date: {
@@ -106,14 +111,26 @@ app.get('/api/users/:_id/logs', (req, res) => {
         elem.date = new Date(elem.date).toDateString();
       }
       User.findById(logId).then((usr) => {
-        res.json({
+        if (noTo) {
+          res.json({
           username: usr.username,
           _id: usr._id.toString(),
           count: exerciseArray.length,
           from: new Date(req.query.from).toDateString(),
-          to: new Date(req.query.to).toDateString(),
           log: exerciseArray
         })
+        }
+        else {
+          res.json({
+            username: usr.username,
+            _id: usr._id.toString(),
+            count: exerciseArray.length,
+            from: new Date(req.query.from).toDateString(),
+            to: new Date(req.query.to).toDateString(),
+            log: exerciseArray
+          })
+        }
+        
       });
     })
     .catch((err) => {console.log('query fail', err)});
