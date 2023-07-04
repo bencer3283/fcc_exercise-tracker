@@ -88,7 +88,7 @@ app.get('/api/users/:_id/logs', (req, res) => {
   let limit = +req.query.limit;
   console.log('retrieve logs of user', logId);
   if (!Number.isNaN(from)) {
-    console.log('query with from, to, limit');
+    console.log('query from ', req.query.from, 'to', req.query.to, 'with limit', req.query.limit);
     if (Number.isNaN(to)) to = Date.now();
     if (limit < 1) limit = 100;
     Exercise.find({
