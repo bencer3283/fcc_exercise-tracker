@@ -12,6 +12,9 @@ const exerciseSchema = mongoose.Schema({
     date: {
         type: Date,
         default: Date() //a Date object of current time
+    },
+    parentId: {
+        type: String,
     }
 });
 

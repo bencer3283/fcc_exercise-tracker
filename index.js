@@ -49,8 +49,10 @@ app.post('/api/users/:_id/exercises', (req, res) => {
   let excerciseToAdd = new Exercise({
     description: req.body.description,
     duration: req.body.duration,
-    date: new Date(req.body.date)
+    date: new Date(req.body.date),
+    parentId: findId
   })
+  excerciseToAdd.save().then((doc) => {}, (err) => {});
   console.log('add exercise to user ', findId);
   User.findById(findId).then((userDoc) => {
     userDoc.exercises.push(excerciseToAdd);
@@ -73,6 +75,7 @@ app.post('/api/users/:_id/exercises', (req, res) => {
 
 app.get('/api/users/:_id/logs', (req, res) => {
   let logId = req.params._id;
+  let queryParam = req.query;
   console.log('retrieve logs of user', logId);
   User.findById(logId).then((logUser) => {
     let exerciseArray = JSON.parse(JSON.stringify(logUser.exercises));
@@ -80,6 +83,8 @@ app.get('/api/users/:_id/logs', (req, res) => {
       console.log(elem);
       elem.date = new Date(elem.date).toDateString();
       delete elem._id;
+      delete elem.parentId;
+      delete elem.__v;
     }
     res.json({
       username: logUser.username,
